@@ -113,6 +113,8 @@ public interface Producer extends MessageFactory, ServiceLifecycle {
      */
     void sendOneway(Message message);
 
+    void flush();
+
     /**
      * Sends a message to the specified destination in one way, using the specified properties, the destination
      * should be preset to {@link MessageHeader}, other header fields as well.

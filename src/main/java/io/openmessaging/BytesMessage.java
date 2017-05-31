@@ -44,4 +44,6 @@ public interface BytesMessage extends Message {
      * @param body the message body to be set
      */
     BytesMessage setBody(final byte[] body);
+
+    void clear();
 }

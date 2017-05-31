@@ -6,13 +6,17 @@ import io.openmessaging.Message;
 
 public class DefaultBytesMessage implements BytesMessage {
 
-    private KeyValue headers = new DefaultKeyValue();
-    private KeyValue properties;
+    private DefaultKeyValue headers;
+    private DefaultKeyValue properties;
     private byte[] body;
 
-    public DefaultBytesMessage(byte[] body) {
-        this.body = body;
+
+    public DefaultBytesMessage() {
+        this.headers = new DefaultKeyValue();
+        this.properties = new DefaultKeyValue();
+        this.body = null;
     }
+
     @Override public byte[] getBody() {
         return body;
     }
@@ -20,6 +24,12 @@ public class DefaultBytesMessage implements BytesMessage {
     @Override public BytesMessage setBody(byte[] body) {
         this.body = body;
         return this;
+    }
+
+    @Override
+    public void clear() {
+        headers.clear();
+        properties.clear();
     }
 
     @Override public KeyValue headers() {
@@ -51,25 +61,21 @@ public class DefaultBytesMessage implements BytesMessage {
     }
 
     @Override public Message putProperties(String key, int value) {
-        if (properties == null) properties = new DefaultKeyValue();
         properties.put(key, value);
         return this;
     }
 
     @Override public Message putProperties(String key, long value) {
-        if (properties == null) properties = new DefaultKeyValue();
         properties.put(key, value);
         return this;
     }
 
     @Override public Message putProperties(String key, double value) {
-        if (properties == null) properties = new DefaultKeyValue();
         properties.put(key, value);
         return this;
     }
 
     @Override public Message putProperties(String key, String value) {
-        if (properties == null) properties = new DefaultKeyValue();
         properties.put(key, value);
         return this;
     }

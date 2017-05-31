@@ -36,10 +36,10 @@ public class DefaultPullConsumer implements PullConsumer {
         int checkNum = 0;
         while (++checkNum <= bucketList.size()) {
             String bucket = bucketList.get((++lastIndex) % (bucketList.size()));
-            Message message = messageStore.pullMessage(queue, bucket);
-            if (message != null) {
-                return message;
-            }
+//            Message message = messageStore.pullMessage(queue, bucket);
+//            if (message != null) {
+//                return message;
+//            }
         }
         return null;
     }
