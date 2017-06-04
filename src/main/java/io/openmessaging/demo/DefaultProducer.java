@@ -16,7 +16,7 @@ public class DefaultProducer  implements Producer {
 
     private static int cachePagePoolSize = 120;
 
-    private static int pageSize = 64 * 1024;
+    private static int pageSize = 512 * 1024;
 
     private int num;
 
