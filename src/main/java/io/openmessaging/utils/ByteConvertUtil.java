@@ -73,7 +73,7 @@ public class ByteConvertUtil {
 	 */
 	public static byte[] transMessageToBytes(DefaultBytesMessage message) {
 		if (message == null){
-			System.out.println("transMessageAttributeToBytes message is null");
+			System.out.println("transMessageToBytes message is null");
 			return null;
 		}
 		StringBuilder sb = new StringBuilder();
@@ -221,7 +221,7 @@ public class ByteConvertUtil {
 //		message.headers().put("headKey12", "value12");
 //		message.properties().put("propKey21", "value21");
 //		message.properties().put("propKey22", "value22");
-//		byte[] bytes1 = transMessageAttributeToBytes(message);
+//		byte[] bytes1 = transMessageToBytes(message);
 //		System.out.println("--------------------");
 //		for (byte b : bytes1)
 //			System.out.print(b);

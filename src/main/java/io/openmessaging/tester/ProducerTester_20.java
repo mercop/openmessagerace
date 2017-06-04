@@ -17,7 +17,6 @@ public class ProducerTester_20 {
     //0表示默认;
     static AtomicInteger state = new AtomicInteger(0);
     static String errorMessage = "";
-    static String MESSAGE_BODY = "SFDAERJWOSDFWERRAOWERWRAEAWRAWRIOIRKI";
     static class ProducerTask extends Thread {
         String label = Thread.currentThread().getName();
         Random random = new Random();
@@ -68,23 +67,9 @@ public class ProducerTester_20 {
                     } else {
                         queueOrTopic = "TOPIC_" + random.nextInt(100);
                     }
-                    Message message = producer.createBytesMessageToQueue(queueOrTopic,
-                            (label + "_" + offsets.get(queueOrTopic) + MESSAGE_BODY).getBytes());
-                    //logger.debug("queueOrTopic:{} offset:{}", queueOrTopic, label + "_" + offsets.get(queueOrTopic));
+                    Message message = producer.createBytesMessageToQueue(queueOrTopic, (label + "_" + offsets.get(queueOrTopic)).getBytes());
+                    logger.debug("queueOrTopic:{} offset:{}", queueOrTopic, label + "_" + offsets.get(queueOrTopic));
                     offsets.put(queueOrTopic, offsets.get(queueOrTopic) + 1);
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(queueOrTopic + "-");
-                    sb.append("header Key: [");
-                    for(String key : message.headers().keySet()){
-                    	sb.append(key + " ");
-                    }
-                    sb.append("] properties Key: [");
-                    for(String key : message.properties().keySet()){
-                    	sb.append(key + " ");
-                    }
-                    sb.append("]");
-                    logger.info(sb.toString());
-                    
                     producer.send(message);
                     sendNum++;
                     if (sendNum >= Constants.PRO_MAX) {

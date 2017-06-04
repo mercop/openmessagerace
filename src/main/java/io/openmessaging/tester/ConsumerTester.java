@@ -87,7 +87,7 @@ public class ConsumerTester {
                         break;
                     } else {
                         offsets.get(queueOrTopic).put(producer, offset + 1);
-                        logger.info("successfully consume one message "+ (pullNum + 1));
+//                        logger.info("successfully consume one message "+ (pullNum + 1));
                     }
                     pullNum++;
                 } catch (Exception e) {

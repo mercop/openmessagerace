@@ -3,21 +3,23 @@ package io.openmessaging.demo;
 import io.openmessaging.KeyValue;
 import io.openmessaging.Message;
 import io.openmessaging.PullConsumer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import io.openmessaging.store.ReadMappedFile;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DefaultPullConsumer implements PullConsumer {
-    private MessageStore messageStore = MessageStore.getInstance();
+
     private KeyValue properties;
-    private String queue;
-    private Set<String> buckets = new HashSet<>();
-    private List<String> bucketList = new ArrayList<>();
+    private Queue<String> queue;
 
-    private int lastIndex = 0;
+    private List<DefaultBytesMessage> list;
+    private int index;
+    private String currentTopic;
 
+    private ReadMappedFile mappedFile;
+
+    private AtomicBoolean readOver;
     public DefaultPullConsumer(KeyValue properties) {
         this.properties = properties;
     }
@@ -27,22 +29,48 @@ public class DefaultPullConsumer implements PullConsumer {
         return properties;
     }
 
+    @Override public Message poll() {
 
-    @Override public synchronized Message poll() {
-        if (buckets.size() == 0 || queue == null) {
-            return null;
+//        System.out.println("begin to get message list --- 0");
+//        if (list == null) {
+//            System.out.println("list is null");
+//        } else {
+//            System.out.println("list size is : "+list.size());
+//        }
+
+        if (index == list.size() || list == null) {
+//            System.out.println("begin to get message list --- 1 ");
+            if (readOver.get()) {
+                currentTopic = queue.poll();
+                if (currentTopic == null) {
+                    return null;
+                }
+                mappedFile = new ReadMappedFile(currentTopic);
+                readOver.set(false);
+            }
+            if (list != null) {
+                list.clear();
+            }
+//            System.out.println("begin to get message list --- 2 ");
+            list = mappedFile.getMessageList(1000, readOver);
+//            System.out.println("size of list : " + list.size());
+            if (list.size() == 0) {
+                currentTopic = queue.poll();
+                if (currentTopic == null) {
+                    return null;
+                }
+                mappedFile = new ReadMappedFile(currentTopic);
+                readOver.set(false);
+                list = mappedFile.getMessageList(1000, readOver);
+                if (list.size() == 0) {
+                    return null;
+                }
+            }
+            index = 0;
         }
-        //use Round Robin
-        int checkNum = 0;
-        while (++checkNum <= bucketList.size()) {
-            String bucket = bucketList.get((++lastIndex) % (bucketList.size()));
-//            Message message = messageStore.pullMessage(queue, bucket);
-//            if (message != null) {
-//                return message;
-//            }
-        }
-        return null;
+        return list.get(index ++);
     }
+
 
     @Override public Message poll(KeyValue properties) {
         throw new UnsupportedOperationException("Unsupported");
@@ -57,15 +85,16 @@ public class DefaultPullConsumer implements PullConsumer {
     }
 
     @Override public synchronized void attachQueue(String queueName, Collection<String> topics) {
-        if (queue != null && !queue.equals(queueName)) {
-            throw new ClientOMSException("You have alreadly attached to a queue " + queue);
+        this.queue = new LinkedList<>();
+        queue.add(queueName);
+        for (String topic : topics){
+            queue.add(topic);
         }
-        queue = queueName;
-        buckets.add(queueName);
-        buckets.addAll(topics);
-        bucketList.clear();
-        bucketList.addAll(buckets);
+        this.list = new ArrayList<>();
+        this.index = 0;
+        this.currentTopic = null;
+        this.mappedFile = null;
+        this.readOver = new AtomicBoolean(true);
     }
-
 
 }
